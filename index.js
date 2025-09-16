@@ -48,6 +48,16 @@ document.addEventListener("DOMContentLoaded", () => {
             CELULAS_RANDOM = false
             generarTablero()
         }
+
+        if (e.key == "o" || e.key == "O") {
+            if (document.body.style.overflow == "hidden") {
+                document.body.style.cursor = "auto"
+                document.body.style.overflow = "auto"
+            } else {
+                document.body.style.cursor = "none"
+                document.body.style.overflow = "hidden"
+            }
+        }
     })
 
 

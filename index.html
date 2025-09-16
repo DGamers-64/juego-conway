@@ -5,13 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Juego de la vida de Conway</title>
-    <script src="index2.js"></script>
+    <script src="index.js"></script>
 </head>
 <body>
 <canvas></canvas>
 <br>
 <p>Espacio: Pausa</p>
 <p>→: Un paso</p>
+<p>O: Ocultar scroll y ratón</p>
 <label>Filas: <input value="40" id="filas" type="number"></label><br>
 <label>Columnas: <input value="40" id="columnas" type="number"></label><br>
 <label>Probabilidad células random: <input value="20" id="prob-random" type="text"></label><br>
@@ -20,6 +21,6 @@
 <br>
 <label>Velocidad: <input value="500" id="velocidadInput" type="range" min="5" max="2000"> <span id="velocidad"></span>ms</label>
 <p>Ciclos: <span id="ciclos"></span></p>
-<p>Población: <span id="poblacion"></span></p>
+<p>Población: <span id="poblacion">0</span></p>
 </body>
 </html>
