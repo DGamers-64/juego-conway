@@ -1,133 +1,122 @@
-let CELULAS_RANDOM = false
+let CELULAS_RANDOM = true
 let PROBABILIDAD_DE_NACER = 20
 let FILAS_TOTALES = 40
 let COLUMNAS_TOTALES = 40
 let TIEMPO_CICLO = 500
 let INTERVALO_PAUSADO = true
+let CICLOS = 0
 
+let CELDAS = []
+
+let inputVelocidad
 let intervaloCiclos
+let canvas
+let ctx
 
 document.addEventListener("DOMContentLoaded", () => {
-    generarTablero()
-    
-    document.getElementById("velocidad").innerHTML = TIEMPO_CICLO / 1000
+    canvas = document.querySelector("canvas")
+    ctx = canvas.getContext("2d")
 
-    intervaloCiclos = setInterval(() => {
-        if (!INTERVALO_PAUSADO) {
-            nuevoCiclo()
-        }
-    }, TIEMPO_CICLO)
+    inputVelocidad = document.getElementById("velocidadInput")
+    document.getElementById("ciclos").innerHTML = CICLOS
+    document.getElementById("velocidad").innerHTML = TIEMPO_CICLO
+
+    generarTablero()
 
     document.addEventListener("keydown", (e) => {
         if (e.key == " " && INTERVALO_PAUSADO) {
+            e.preventDefault()
             INTERVALO_PAUSADO = false
         } else if (e.key == " " && !INTERVALO_PAUSADO) {
+            e.preventDefault()
             INTERVALO_PAUSADO = true
         }
 
         if (e.key == "ArrowRight") {
-            nuevoCiclo()
-        }
-
-        if (e.key == "ArrowUp") {
-            cambiarVelocidad("subir")
-        }
-
-        if (e.key == "ArrowDown") {
-            cambiarVelocidad("bajar")
+            e.preventDefault()
+            avanzarCiclo()
         }
 
         if (e.key == "r" || e.key == "R") {
+            e.preventDefault()
             CELULAS_RANDOM = true
             generarTablero()
         }
         
         if (e.key == "q" || e.key == "Q") {
+            e.preventDefault()
             CELULAS_RANDOM = false
             generarTablero()
         }
     })
+
+
+    inputVelocidad.addEventListener("input", cambiarVelocidad)
 })
 
 function generarTablero() {
+    CELDAS = []
     INTERVALO_PAUSADO = true
     FILAS_TOTALES = document.getElementById("filas").value
     COLUMNAS_TOTALES = document.getElementById("columnas").value
     PROBABILIDAD_DE_NACER = document.getElementById("prob-random").value
-    const tabla = document.querySelector("table")
-    tabla.innerHTML = ""
-    for (let i = 0; i < FILAS_TOTALES; i++) {
-        const fila = document.createElement("tr")
-        for (let i = 0; i < COLUMNAS_TOTALES; i++) {
-            const columna = document.createElement("td")
-            fila.appendChild(columna)
+    canvas.height = FILAS_TOTALES * 20
+    canvas.width = COLUMNAS_TOTALES * 20
+    ctx.clearRect(0, 0, FILAS_TOTALES * 20, COLUMNAS_TOTALES * 20)
+    for (let i = 0; i != FILAS_TOTALES; i++) {
+        const fila = []
+        for (let j = 0; j != COLUMNAS_TOTALES; j++) {
+            if (Math.floor(Math.random() * 100) < PROBABILIDAD_DE_NACER && CELULAS_RANDOM) fila.push(1)
+            else fila.push(0)
         }
-        tabla.appendChild(fila)        
+        CELDAS.push(fila)
     }
+    mostrarCelulas()
 
-    const filas = document.querySelectorAll("tr")
-    filas.forEach((e) => {
-        const columnas = e.querySelectorAll("td")
-        columnas.forEach((el) => {
-            if (Math.floor(Math.random() * 100) < PROBABILIDAD_DE_NACER && CELULAS_RANDOM) {
-                el.classList.add("vivo")
-            } else {
-                el.classList.add("muerto")
-            }
-
-            el.addEventListener("click", () => {
-                if (el.classList[0] == "vivo") {
-                    el.classList.replace("vivo", "muerto")
-                } else {
-                    el.classList.replace("muerto", "vivo")
-                }
-            })
-        })
-    })
+    intervaloCiclos = setInterval(() => {
+        if (!INTERVALO_PAUSADO) avanzarCiclo()
+    }, TIEMPO_CICLO)
 }
 
-function cambiarVelocidad(key) {
-    if (key == "subir" && TIEMPO_CICLO > 100) {
-        TIEMPO_CICLO -= 100
-        clearInterval(intervaloCiclos)
-
-    } else if (key == "bajar" && TIEMPO_CICLO < 2000) {
-        TIEMPO_CICLO += 100
+function mostrarCelulas() {
+    for (let i = 0; i < CELDAS.length; i++) {
+        for (let j = 0; j < CELDAS[i].length; j++) {
+            dibujarCelula(CELDAS[i][j], [j * 20, i * 20])
+        }
     }
+}
+
+function dibujarCelula(estado, esquina) {
+    if (estado == 1) ctx.fillStyle = "white"
+    else ctx.fillStyle = "black"
+    ctx.fillRect(esquina[0], esquina[1], 20, 20)
+}
+
+function cambiarVelocidad() {
+    TIEMPO_CICLO = inputVelocidad.value
     clearInterval(intervaloCiclos)
     intervaloCiclos = setInterval(() => {
-        if (!INTERVALO_PAUSADO) {
-            nuevoCiclo()
-        }
+        if (!INTERVALO_PAUSADO) avanzarCiclo()
     }, TIEMPO_CICLO)
-    document.getElementById("velocidad").innerHTML = TIEMPO_CICLO / 1000
+    document.getElementById("velocidad").innerHTML = TIEMPO_CICLO
 }
 
-function nuevoCiclo() {
-    const tablaCopia = document.querySelector("table").cloneNode(true)
-    const filas = document.querySelectorAll("tr")
-    filas.forEach((fila, idxFila) => {
-        const columnas = fila.querySelectorAll("td")
-        columnas.forEach((columna, idxColumna) => {
-            const celulasAlrededor = contarCelulasAlrededor(idxFila, idxColumna)
-            let vivasAlr = 0
-            let muertasAlr = 0
-            celulasAlrededor.forEach((e) => {
-                if (tablaCopia.querySelectorAll("tr")[e[0]].querySelectorAll("td")[e[1]].classList[0] == "vivo") {
-                    vivasAlr++
-                } else {
-                    muertasAlr++
-                }
-            })
-            if (columna.classList[0] == "muerto" && vivasAlr == 3) {
-                columna.classList.replace("muerto", "vivo")
-            } else if (columna.classList[0] == "vivo" && vivasAlr > 3) {
-                columna.classList.replace("vivo", "muerto")
-            } else if (columna.classList[0] == "vivo" && vivasAlr <= 1) {
-                columna.classList.replace("vivo", "muerto")
-            }
-        })
-    })
+function avanzarCiclo() {
+    CICLOS++
+    const celdasCopia = CELDAS.map(fila => [...fila])
+    for (let i = 0; i < CELDAS.length; i++) {
+        for (let j = 0; j < CELDAS[i].length; j++) {
+            let vivasAlr = contarCelulasAlrededor(i, j)
+            let celdaActual = CELDAS[i][j]
+            if (celdaActual == 0 && vivasAlr == 3) celdasCopia[i][j] = 1
+            else if (celdaActual == 1 && (vivasAlr != 2 && vivasAlr != 3)) celdasCopia[i][j] = 0
+        }
+    }
+
+    CELDAS = celdasCopia
+    document.getElementById("ciclos").innerHTML = CICLOS
+
+    mostrarCelulas()
 }
 
 function contarCelulasAlrededor(idxFila, idxColumna) {
@@ -183,5 +172,13 @@ function contarCelulasAlrededor(idxFila, idxColumna) {
         celulasAlrededor.push([idxFila + 1, idxColumna + 1])
     }
 
-    return celulasAlrededor
+    celdasCopia = CELDAS
+    let vivasAlr = 0
+    celulasAlrededor.forEach((e) => {
+        if (celdasCopia[e[0]][e[1]] == 1) {
+            vivasAlr++
+        }
+    })
+
+    return vivasAlr
 }
