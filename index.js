@@ -5,6 +5,7 @@ let COLUMNAS_TOTALES = 40
 let TIEMPO_CICLO = 500
 let INTERVALO_PAUSADO = true
 let CICLOS = 0
+let PIXELES_POR_CELDA = 1
 
 let CELDAS = []
 
@@ -66,13 +67,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function generarTablero() {
     CELDAS = []
+    CICLOS = 0
     INTERVALO_PAUSADO = true
     FILAS_TOTALES = document.getElementById("filas").value
     COLUMNAS_TOTALES = document.getElementById("columnas").value
     PROBABILIDAD_DE_NACER = document.getElementById("prob-random").value
-    canvas.height = FILAS_TOTALES * 20
-    canvas.width = COLUMNAS_TOTALES * 20
-    ctx.clearRect(0, 0, FILAS_TOTALES * 20, COLUMNAS_TOTALES * 20)
+    canvas.height = FILAS_TOTALES * PIXELES_POR_CELDA
+    canvas.width = COLUMNAS_TOTALES * PIXELES_POR_CELDA
+    ctx.clearRect(0, 0, FILAS_TOTALES * PIXELES_POR_CELDA, COLUMNAS_TOTALES * PIXELES_POR_CELDA)
     for (let i = 0; i != FILAS_TOTALES; i++) {
         const fila = []
         for (let j = 0; j != COLUMNAS_TOTALES; j++) {
@@ -91,7 +93,7 @@ function generarTablero() {
 function mostrarCelulas() {
     for (let i = 0; i < CELDAS.length; i++) {
         for (let j = 0; j < CELDAS[i].length; j++) {
-            dibujarCelula(CELDAS[i][j], [j * 20, i * 20])
+            dibujarCelula(CELDAS[i][j], [j * PIXELES_POR_CELDA, i * PIXELES_POR_CELDA])
         }
     }
 }
@@ -99,7 +101,7 @@ function mostrarCelulas() {
 function dibujarCelula(estado, esquina) {
     if (estado == 1) ctx.fillStyle = "white"
     else ctx.fillStyle = "black"
-    ctx.fillRect(esquina[0], esquina[1], 20, 20)
+    ctx.fillRect(esquina[0], esquina[1], PIXELES_POR_CELDA, PIXELES_POR_CELDA)
 }
 
 function cambiarVelocidad() {
