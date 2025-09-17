@@ -1,11 +1,11 @@
 let CELULAS_RANDOM = false
 let PROBABILIDAD_DE_NACER = 20
-let FILAS_TOTALES = 50
-let COLUMNAS_TOTALES = 50
+let FILAS_TOTALES = 40
+let COLUMNAS_TOTALES = 40
 let TIEMPO_CICLO = 500
 let INTERVALO_PAUSADO = true
 let CICLOS = 0
-let PIXELES_POR_CELDA = 20
+let PIXELES_POR_CELDA = 1
 
 let CELDAS = []
 
@@ -23,6 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("velocidad").innerHTML = TIEMPO_CICLO
 
     generarTablero()
+
+    canvas.addEventListener("click", cambiarCelula)
 
     document.addEventListener("keydown", (e) => {
         if (e.key == " " && INTERVALO_PAUSADO) {
@@ -64,6 +66,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     inputVelocidad.addEventListener("input", cambiarVelocidad)
 })
+
+function cambiarCelula(event) {
+    const rect = canvas.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+
+    const filaCelula = Math.trunc(y / PIXELES_POR_CELDA)
+    const columnaCelula = Math.trunc(x / PIXELES_POR_CELDA)
+
+    if (CELDAS[filaCelula][columnaCelula] == 1) 
+        CELDAS[filaCelula][columnaCelula] = 0
+    else 
+        CELDAS[filaCelula][columnaCelula] = 1
+
+    mostrarCelulas()
+}
 
 function generarTablero() {
     CELDAS = []
@@ -124,6 +142,7 @@ function generarTablero() {
     FILAS_TOTALES = document.getElementById("filas").value
     COLUMNAS_TOTALES = document.getElementById("columnas").value
     PROBABILIDAD_DE_NACER = document.getElementById("prob-random").value
+    document.getElementById("ciclos").innerHTML = CICLOS
     canvas.height = FILAS_TOTALES * PIXELES_POR_CELDA
     canvas.width = COLUMNAS_TOTALES * PIXELES_POR_CELDA
     for (let i = 0; i != FILAS_TOTALES; i++) {
